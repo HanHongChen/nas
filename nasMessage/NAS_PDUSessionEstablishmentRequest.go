@@ -23,6 +23,8 @@ type PDUSessionEstablishmentRequest struct {
 	*nasType.AlwaysonPDUSessionRequested
 	*nasType.SMPDUDNRequestContainer
 	*nasType.ExtendedProtocolConfigurationOptions
+	*nasType.PDUSessionPairId
+	*nasType.RSN
 }
 
 func NewPDUSessionEstablishmentRequest(iei uint8) (pDUSessionEstablishmentRequest *PDUSessionEstablishmentRequest) {
@@ -38,6 +40,8 @@ const (
 	PDUSessionEstablishmentRequestAlwaysonPDUSessionRequestedType           uint8 = 0x0B
 	PDUSessionEstablishmentRequestSMPDUDNRequestContainerType               uint8 = 0x39
 	PDUSessionEstablishmentRequestExtendedProtocolConfigurationOptionsType  uint8 = 0x7B
+	PDUSessionEstablishmentRequestPDUSessionPairIdType						uint8 = 0x34
+	PDUSessionEstablishmentRequestRSNType									uint8 = 0x35
 )
 
 func (a *PDUSessionEstablishmentRequest) EncodePDUSessionEstablishmentRequest(buffer *bytes.Buffer) error {
@@ -195,6 +199,32 @@ func (a *PDUSessionEstablishmentRequest) DecodePDUSessionEstablishmentRequest(by
 			a.ExtendedProtocolConfigurationOptions.SetLen(a.ExtendedProtocolConfigurationOptions.GetLen())
 			if err := binary.Read(buffer, binary.BigEndian, a.ExtendedProtocolConfigurationOptions.Buffer); err != nil {
 				return fmt.Errorf("NAS decode error (PDUSessionEstablishmentRequest/ExtendedProtocolConfigurationOptions): %w", err)
+			}
+		case PDUSessionEstablishmentRequestPDUSessionPairIdType:
+			a.PDUSessionPairId = nasType.NewPDUSessionPairId(ieiN)
+			var length uint8
+			if err := binary.Read(buffer, binary.BigEndian, &length); err != nil {
+				return fmt.Errorf("NAS decode error (PDUSessionEstablishmentRequest/PDUSessionPairId): %w", err)
+			}
+			if length != 1 {
+				return fmt.Errorf("invalid PDU Session Pair ID length: %d", length)
+			}
+			a.PDUSessionPairId.SetLen(length)
+			if err := binary.Read(buffer, binary.BigEndian, a.PDUSessionPairId.Octet); err != nil{
+				return fmt.Errorf("NAS decode error (PDUSessionEstablishmentRequest/PDUSessionPairId): %w", err) 
+			}
+		case PDUSessionEstablishmentRequestRSNType:
+			a.RSN = nasType.NewRSN(ieiN)
+			var length uint8
+			if err := binary.Read(buffer, binary.BigEndian, &length); err != nil {
+				return fmt.Errorf("NAS decode error (PDUSessionEstablishmentRequest/RSN): %w", err)
+			}
+			if length != 1 {
+				return fmt.Errorf("invalid RSN length: %d", length)
+			}
+			a.PDUSessionPairId.SetLen(length)
+			if err := binary.Read(buffer, binary.BigEndian, a.RSN.Octet); err != nil{
+				return fmt.Errorf("NAS decode error (PDUSessionEstablishmentRequest/RSN): %w", err) 
 			}
 		default:
 		}

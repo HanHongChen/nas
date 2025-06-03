@@ -116,6 +116,28 @@ func (a *PDUSessionEstablishmentRequest) EncodePDUSessionEstablishmentRequest(bu
 			return fmt.Errorf("NAS encode error (PDUSessionEstablishmentRequest/ExtendedProtocolConfigurationOptions): %w", err)
 		}
 	}
+	if a.PDUSessionPairId != nil {
+		if err := binary.Write(buffer, binary.BigEndian, a.PDUSessionPairId.GetIei()); err != nil {
+			return fmt.Errorf("NAS encode error (PDUSessionEstablishmentRequest/PDUSessionPairId): %w", err)
+		}
+		if err := binary.Write(buffer, binary.BigEndian, a.PDUSessionPairId.GetLen()); err != nil {
+			return fmt.Errorf("NAS encode error (PDUSessionEstablishmentRequest/PDUSessionPairId): %w", err)
+		}
+		if err := binary.Write(buffer, binary.BigEndian, a.PDUSessionPairId.GetPduSessionId); err != nil {
+			return fmt.Errorf("NAS encode error (PDUSessionEstablishmentRequest/PDUSessionPairId): %w", err)
+		}
+	}
+	if a.RSN != nil {
+		if err := binary.Write(buffer, binary.BigEndian, a.RSN.GetIei()); err != nil {
+			return fmt.Errorf("NAS encode error (PDUSessionEstablishmentRequest/RSN): %w", err)
+		}
+		if err := binary.Write(buffer, binary.BigEndian, a.RSN.GetLen()); err != nil {
+			return fmt.Errorf("NAS encode error (PDUSessionEstablishmentRequest/RSN): %w", err)
+		}
+		if err := binary.Write(buffer, binary.BigEndian, a.RSN.GetRSN()); err != nil {
+			return fmt.Errorf("NAS encode error (PDUSessionEstablishmentRequest/RSN): %w", err)
+		}
+	}
 	return nil
 }
 
